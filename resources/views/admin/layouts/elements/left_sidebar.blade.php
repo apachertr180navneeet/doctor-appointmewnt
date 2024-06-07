@@ -64,7 +64,7 @@
 			</a>
 		</li>
 
-		<li class="menu-item {{ request()->is('admin/users') ? 'active' : ''}}">
+		{{--  <li class="menu-item {{ request()->is('admin/users') ? 'active' : ''}}">
 			<a href="{{route('admin.users.index')}}" class="menu-link">
 				<i class="menu-icon tf-icons bx bx-group"></i>
 				<div data-i18n="User">Users</div>
@@ -84,11 +84,11 @@
 				<div data-i18n="Notifications">Notifications</div>
 			</a>
 		</li>
-		
+
 		@php
             $pages = Helper::pages();
         @endphp
-		
+
 		<li class="menu-item {{ request()->is('admin/page*') ? 'active open' : ''}}">
 			<a href="javascript:void(0);" class="menu-link menu-toggle">
 				<i class="menu-icon tf-icons bx bx-book-content"></i>
@@ -104,7 +104,7 @@
 					</li>
                 @endforeach
 			</ul>
-		</li>
-		
+		</li>  --}}
+
 	</ul>
 </aside>

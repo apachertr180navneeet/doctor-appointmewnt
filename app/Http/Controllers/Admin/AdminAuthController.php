@@ -8,32 +8,34 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use Mail, DB, Hash, Validator, Session, File,Exception;
+use Mail;
+use DB;
+use Hash;
+use Validator;
+use Session;
+use File;
+use Exception;
 
 class AdminAuthController extends Controller
 {
-    
     public function index()
     {
-        try{
-            if(Auth::user()) {
-                $user = Auth::user();
-                if($user->role == "admin") {
+        try {
+            $user = Auth::user();
+
+            if ($user) {
+                if ($user->role == "admin") {
                     return redirect()->route('admin.dashboard');
-                }else{
-                    return back()->with("error","Opps! You do not have access this");
                 }
-            }else{
-                return redirect()->route('admin.login');
+
+                return back()->with("error", "Oops! You do not have access to this");
             }
 
-        }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
+            return redirect()->route('admin.login');
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
-
-    
 
     public function login()
     {
@@ -47,32 +49,25 @@ class AdminAuthController extends Controller
 
     public function postLogin(Request $request)
     {
-        try{
+        try {
             $request->validate([
-                "email" => "required",
+                "email" => "required|email",
                 "password" => "required",
             ]);
-            $user = User::where('role','admin')->where('email',$request->email)->first();
-            if($user){
-                $credentials = $request->only("email", "password");
-                if(Auth::attempt([
-                        'email' => $request->email,
-                        'password' => $request->password,
-                        'role' => function ($query) {
-                            $query->where('role','admin');
-                        }
-                    ]))
-                {
-                    return redirect()->route("admin.dashboard")->with("success", "Welcome to your dashboard.");
-                }
-                return back()->with("error","Invalid credentials");
-            }else{
-                return back()->with("error","Invalid credentials");
+
+            $credentials = [
+                'email' => $request->email,
+                'password' => $request->password,
+                'role' => 'admin'
+            ];
+
+            if (Auth::attempt($credentials)) {
+                return redirect()->route("admin.dashboard")->with("success", "Welcome to your dashboard.");
             }
 
-        }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
+            return back()->with("error", "Invalid credentials");
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
 
@@ -85,12 +80,12 @@ class AdminAuthController extends Controller
         ]);
 
         $data = $request->all();
-        $check = $this->create($data);
+        $this->create($data);
 
-        return redirect("admin.dashboard")->with("success","Great! You have Successfully loggedin");
+        return redirect()->route("admin.dashboard")->with("success", "Great! You have successfully registered.");
     }
 
-    public function create(array $data)
+    private function create(array $data)
     {
         return User::create([
             "name" => $data["name"],
@@ -106,7 +101,7 @@ class AdminAuthController extends Controller
 
     public function submitForgetPasswordForm(Request $request)
     {
-        try{
+        try {
             $request->validate([
                 "email" => "required|email|exists:users",
             ]);
@@ -119,56 +114,50 @@ class AdminAuthController extends Controller
                 "created_at" => Carbon::now(),
             ]);
 
-            $new_link_token = url("admin/reset-password/" . $token);
-            Mail::send("admin.email.forgot-password",["token" => $new_link_token, "email" => $request->email],
-                function ($message) use ($request) {
-                    $message->to($request->email);
-                    $message->subject("Reset Password");
-                }
-            );
-            return redirect()->route("admin.login")->with("success","We have e-mailed your password reset link!");
+            $resetLink = url("admin/reset-password/" . $token);
+            Mail::send("admin.email.forgot-password", ["token" => $resetLink, "email" => $request->email], function ($message) use ($request) {
+                $message->to($request->email);
+                $message->subject("Reset Password");
+            });
+
+            return redirect()->route("admin.login")->with("success", "We have e-mailed your password reset link!");
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
-        }
-    
     }
 
     public function showResetPasswordForm($token)
     {
-        try{    
-            $user = DB::table("password_resets")->where("token", $token)->first();
-            $email = $user->email;
-            return view("admin.auth.reset-password", ["token" => $token,"email" => $email,]);
-        }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
+        try {
+            $user = DB::table("password_resets")->where("token", $token)->firstOrFail();
+            return view("admin.auth.reset-password", ["token" => $token, "email" => $user->email]);
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
 
     public function submitResetPasswordForm(Request $request)
     {
-        try{
+        try {
             $request->validate([
                 "email" => "required|email|exists:users",
                 "password" => "required|string|min:6|confirmed",
                 "password_confirmation" => "required",
             ]);
 
-            $updatePassword = DB::table("password_resets")->where(["email" => $request->email,"token" => $request->token])->first();
+            $updatePassword = DB::table("password_resets")->where(["email" => $request->email, "token" => $request->token])->first();
 
             if (!$updatePassword) {
                 return back()->withInput()->with("error", "Invalid token!");
             }
 
-            $user = User::where("email", $request->email)->update(["password" => Hash::make($request->password)]);
+            User::where("email", $request->email)->update(["password" => Hash::make($request->password)]);
 
             DB::table("password_resets")->where(["email" => $request->email])->delete();
 
-            return redirect()->route("admin.login")->with("success","Your password has been changed successfully!");
-        }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
+            return redirect()->route("admin.login")->with("success", "Your password has been changed successfully!");
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
 
@@ -179,91 +168,90 @@ class AdminAuthController extends Controller
 
     public function updatePassword(Request $request)
     {
-        try{
+        try {
             $request->validate([
                 "old_password" => "required",
                 "new_password" => "required|confirmed",
             ]);
-            #Match The Old Password
+
             if (!Hash::check($request->old_password, auth()->user()->password)) {
-                return back()->with("error", "Old Password Doesn't match!");
+                return back()->with("error", "Old Password doesn't match!");
             }
-            #Update the new Password
-            User::whereId(auth()->user()->id)->update([
+
+            auth()->user()->update([
                 "password" => Hash::make($request->new_password),
             ]);
+
             return back()->with("success", "Password changed successfully!");
-        }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
 
-    
-
     public function logout()
     {
-        try{
+        try {
             Session::flush();
             Auth::logout();
-            return redirect()->route("admin.login")->withSuccess('Logout Successful!');
-        }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
+            return redirect()->route("admin.login")->with("success", "Logout Successful!");
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
 
     public function adminProfile()
     {
-        try{
+        try {
             $user = Auth::user();
             return view("admin.auth.profile", compact("user"));
-
-        }
-        catch(Exception $e){
-            return back()->with("error",$e->getMessage());
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
 
     public function updateAdminProfile(Request $request)
     {
-        try
-        {
+        try {
             $user = Auth::user();
             $data = $request->all();
-            $validator = Validator::make($data,[
+
+            $validator = Validator::make($data, [
                 "first_name" => "required",
                 "last_name" => "required",
-                "phone" => "required|min:9|unique:users,phone," .$user->id,
+                "phone" => "required|min:9|unique:users,phone," . $user->id,
                 "email" => "required|email|unique:users,email," . $user->id,
                 "avatar" => "sometimes|image|mimes:jpeg,jpg,png|max:5000"
             ]);
-            
-            if($validator->fails()) {
-                return redirect()->back()->withInput($request->all())->withErrors($validator->errors());
+
+            if ($validator->fails()) {
+                return back()->withInput($request->all())->withErrors($validator->errors());
             }
-            
-            if($request->file("avatar")) {
+
+            if ($request->hasFile("avatar")) {
                 $file = $request->file("avatar");
-                $filename = time() . $file->getClientOriginalName();
+                $filename = time() . '_' . $file->getClientOriginalName();
                 $folder = "uploads/user/";
                 $path = public_path($folder);
+
                 if (!File::exists($path)) {
-                    File::makeDirectory($path, $mode = 0777, true, true);
+                    File::makeDirectory($path, 0777, true);
                 }
+
                 $file->move($path, $filename);
                 $user->avatar = $folder . $filename;
             }
-            $user->first_name = $request->first_name;
-            $user->last_name = $request->last_name;
-            $user->full_name = $request->first_name . " " . $request->last_name;
-            $user->phone = $request->phone;
-            $user->email = $request->email;
-            $user->save();
-            return redirect()->back()->with("success", "Profile update successfully!");
-        }
-        catch (Exception $e) {
-            return redirect()->back()->with("error", $e->getMessage());
+
+            $user->update([
+                "first_name" => $request->first_name,
+                "last_name" => $request->last_name,
+                "full_name" => $request->first_name . ' ' . $request->last_name,
+                "phone" => $request->phone,
+                "email" => $request->email,
+            ]);
+
+            return back()->with("success", "Profile updated successfully!");
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
         }
     }
 
@@ -271,6 +259,4 @@ class AdminAuthController extends Controller
     {
         return view("admin.dashboard.index");
     }
-
-
 }

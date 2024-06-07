@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Contact;
-use Mail,Hash,File,Auth,DB,Helper,Exception,Session,Redirect;
-use Carbon\Carbon;
 use App\Mail\ContactMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
+use Exception;
 
 class ContactController extends Controller
 {
@@ -18,59 +22,56 @@ class ContactController extends Controller
         return view('admin.contacts.index');
     }
 
-    public function getallcontact(Request $request){
-        $contacts = Contact::orderBy('id','desc')->get();
+    public function getAllContact(Request $request)
+    {
+        $contacts = Contact::orderBy('id', 'desc')->get();
         return response()->json(['data' => $contacts]);
     }
 
-
     public function contactUsSubmit(Request $request)
     {
-        
         $request->validate([
-            'name' => 'required', 
-            'email' => 'required|email', 
+            'name' => 'required',
+            'email' => 'required|email',
             'message' => 'required'
         ]);
-        
+
+        DB::beginTransaction();
         try {
-            //======================== Submit Feedback   ===============//
             $contact = new Contact();
             $contact->name = $request->name;
             $contact->email = $request->email;
             $contact->message = $request->message;
             $contact->save();
-            $contactId = $contact->id;
-            $contact_details = Contact::where('id', $contactId)->first();
-            if (!empty($contact_details)) {
-                $admin = Helper::admin();
-                Mail::to($admin->business_email)->send(new ContactMail($contact_details));
-            }
-            return redirect()->route('/')->withSuccess('Thank you for getting in touch!');
+
+            $adminEmail = config('mail.admin_email'); // Assuming admin email is set in config
+            Mail::to($adminEmail)->send(new ContactMail($contact));
+
+            DB::commit();
+            return redirect()->route('/')->with('success', 'Thank you for getting in touch!');
         } catch (Exception $e) {
             DB::rollback();
-            return back()->withInput()
-                ->withError($e->getMessage());
+            Log::error('Contact Us Submit Error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'An error occurred. Please try again later.');
         }
     }
 
     public function destroy($id)
     {
+        try {
+            $contact = Contact::findOrFail($id);
+            $contact->delete();
 
-        try{
-            Contact::where('id',$id)->delete();
             return response()->json([
                 'success' => 'success',
-                'message' => 'deleted successfully',
+                'message' => 'Deleted successfully',
             ]);
-        }catch(Exception $e){
+        } catch (Exception $e) {
+            Log::error('Contact Delete Error: ' . $e->getMessage());
             return response()->json([
                 'success' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'An error occurred. Please try again later.',
             ]);
         }
-
     }
-
-
 }
