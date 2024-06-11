@@ -63,6 +63,12 @@
 				<div data-i18n="Dashboard">Dashboard</div>
 			</a>
 		</li>
+        <li class="menu-item {{ request()->is('admin/department') ? 'active' : ''}}">
+			<a href="{{route('admin.department.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-home-circle"></i>
+				<div data-i18n="Dashboard">Department</div>
+			</a>
+		</li>
 
 		{{--  <li class="menu-item {{ request()->is('admin/users') ? 'active' : ''}}">
 			<a href="{{route('admin.users.index')}}" class="menu-link">
