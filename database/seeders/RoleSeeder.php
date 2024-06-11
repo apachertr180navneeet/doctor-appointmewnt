@@ -10,9 +10,9 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $roles = [
-            ['name' => 'Admin'],
-            ['name' => 'Doctor'],
-            ['name' => 'Patient'],
+            ['name' => 'admin'],
+            ['name' => 'doctor'],
+            ['name' => 'patient'],
         ];
 
         foreach ($roles as $role) {
