@@ -78,6 +78,12 @@
 				<div data-i18n="Dashboard">Education</div>
 			</a>
 		</li>
+        <li class="menu-item {{ request()->is('admin/role') ? 'active' : ''}}">
+			<a href="{{route('admin.role.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-user"></i>
+				<div data-i18n="Dashboard">Role</div>
+			</a>
+		</li>
 
 	</ul>
 </aside>

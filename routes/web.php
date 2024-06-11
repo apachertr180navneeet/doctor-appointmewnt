@@ -9,7 +9,8 @@ use App\Http\Controllers\Admin\{
     NotificationController,
     AdminUserController,
     DepartmentController,
-    EducationController
+    EducationController,
+    RoleController
 };
 
 /*
@@ -62,6 +63,17 @@ Route::name('admin.')->prefix('admin')->group(function () {
 
         // Education Route Routes
         Route::prefix('education')->name('education.')->controller(EducationController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getallList')->name('alllist');
+            Route::post('store', 'store')->name('store');
+            Route::post('status', 'status')->name('status');
+            Route::post('delete', 'delete')->name('delete');
+            Route::post('edit', 'edit')->name('edit');
+            Route::post('update', 'update')->name('update');
+        });
+
+        // role Route Routes
+        Route::prefix('role')->name('role.')->controller(RoleController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getallList')->name('alllist');
             Route::post('store', 'store')->name('store');

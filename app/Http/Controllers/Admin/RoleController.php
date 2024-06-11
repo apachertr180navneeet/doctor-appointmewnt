@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{
-        User,
-        Education
-    };
+    User,
+    Role
+};
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
@@ -19,16 +19,16 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Exception;
 
-class EducationController extends Controller
+class RoleController extends Controller
 {
-    // education Function
+    // role Function
     public function index() {
-        return view('admin.education.index');
+        return view('admin.role.index');
     }
 
     public function getallList(Request $request) {
-        $education = Education::get();
-        return response()->json(['data' => $education]);
+        $role = Role::get();
+        return response()->json(['data' => $role]);
     }
 
     /**
@@ -39,18 +39,18 @@ class EducationController extends Controller
         try {
             // Validation rules
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255|unique:education,name',
+                'name' => 'required|string|max:255|unique:roles,name',
             ]);
 
             if ($validator->fails()) {
                 // Check if unit with the same name and code exists (including soft deleted ones)
-                $educationCheck = Education::withTrashed()->where('name', $request->name)->first();
+                $roleCheck = Role::withTrashed()->where('name', $request->name)->first();
 
-                if (!empty($educationCheck)) {
+                if (!empty($roleCheck)) {
                     // If found, restore the soft deleted record
-                    $record = Education::withTrashed()->find($educationCheck->id);
+                    $record = Role::withTrashed()->find($roleCheck->id);
                     $record->restore();
-                    return response()->json(['success' => 'education added successfully']);
+                    return response()->json(['success' => 'role added successfully']);
                 } else {
                     // If validation fails and no duplicate found, return validation errors
                     return response()->json(['errors' => $validator->errors()->all()]);
@@ -58,11 +58,11 @@ class EducationController extends Controller
             }
 
             // If validation passes, create a new unit
-            Education::create([
+            Role::create([
                 'name' => $request->name,
             ]);
 
-            return response()->json(['success' => 'education added successfully']);
+            return response()->json(['success' => 'role added successfully']);
         } catch (\Throwable $th) {
             dd($th); // Again, consider logging instead of dumping
         }
@@ -70,7 +70,7 @@ class EducationController extends Controller
 
 
     /**
-     * Update the status of a education.
+     * Update the status of a role.
      */
     public function status(Request $request)
     {
@@ -79,8 +79,8 @@ class EducationController extends Controller
             $id = $request->id;
             $status = $request->status;
 
-            // Update status of the education
-            Education::where('id', $id)->update(['status' => $status]);
+            // Update status of the role
+            Role::where('id', $id)->update(['status' => $status]);
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) { // Changed to \Exception for consistency
@@ -89,7 +89,7 @@ class EducationController extends Controller
     }
 
     /**
-     * Delete a education.
+     * Delete a role.
      */
     public function delete(Request $request)
     {
@@ -97,9 +97,9 @@ class EducationController extends Controller
             // Get unit ID from request
             $Id = $request->Id;
 
-            // Find and delete the education
-            $education = Education::find($Id);
-            $education->delete();
+            // Find and delete the role
+            $role = Role::find($Id);
+            $role->delete();
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) { // Changed to \Exception for consistency
@@ -109,7 +109,7 @@ class EducationController extends Controller
 
 
     /**
-     * Retrieve a education for editing.
+     * Retrieve a role for editing.
      */
     public function edit(Request $request)
     {
@@ -118,37 +118,37 @@ class EducationController extends Controller
             $Id = $request->Id;
 
             // Find the unit
-            $education = Education::find($Id);
-            return response()->json(['success' => true, 'data' => $education]);
+            $role = Role::find($Id);
+            return response()->json(['success' => true, 'data' => $role]);
         } catch (\Exception $e) { // Changed to \Exception for consistency
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
     /**
-     * Update a education.
+     * Update a role.
      */
     public function update(Request $request)
     {
         try {
             // Validation rules
             $validator = Validator::make($request->all(), [
-                'educationName' => 'required|string|max:255|unique:education,name',
+                'roleName' => 'required|string|max:255',
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()->all()]);
             }
 
-            // Update education data
-            $educationdata =[
-                'name' => $request->educationName,
+            // Update role data
+            $roledata =[
+                'name' => $request->roleName,
             ];
 
             // Update the unit
-            Education::where('id', $request->educationId)->update($educationdata);
+            Role::where('id', $request->roleId)->update($roledata);
 
-            return response()->json(['success' => 'education Edit successfully']);
+            return response()->json(['success' => 'role Edit successfully']);
         } catch (\Throwable $th) {
             dd($th); // Again, consider logging instead of dumping
         }
