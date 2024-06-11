@@ -8,7 +8,8 @@ use App\Http\Controllers\Admin\{
     ContactController,
     NotificationController,
     AdminUserController,
-    DepartmentController
+    DepartmentController,
+    EducationController
 };
 
 /*
@@ -47,39 +48,22 @@ Route::name('admin.')->prefix('admin')->group(function () {
         Route::get('profile', [AdminAuthController::class, 'adminProfile'])->name('profile');
         Route::post('profile', [AdminAuthController::class, 'updateAdminProfile'])->name('update.profile');
 
-        // User Management Routes
-        Route::prefix('users')->name('users.')->group(function () {
-            Route::get('/', [AdminUserController::class, 'index'])->name('index');
-            Route::get('all', [AdminUserController::class, 'getallUser'])->name('alluser');
-            Route::post('status', [AdminUserController::class, 'userStatus'])->name('status');
-            Route::delete('delete/{id}', [AdminUserController::class, 'destroy'])->name('destroy');
-            Route::get('{id}', [AdminUserController::class, 'show'])->name('show');
-        });
-
-        // Contact Management Routes
-        Route::prefix('contacts')->name('contacts.')->group(function () {
-            Route::get('/', [ContactController::class, 'index'])->name('index');
-            Route::get('all', [ContactController::class, 'getallcontact'])->name('allcontact');
-            Route::delete('delete/{id}', [ContactController::class, 'destroy'])->name('destroy');
-        });
-
-        // Page Management Routes
-        Route::prefix('page')->name('page.')->group(function () {
-            Route::get('create/{key}', [PageController::class, 'create'])->name('create');
-            Route::put('update/{key}', [PageController::class, 'update'])->name('update');
-        });
-
-        // Notification Management Routes
-        Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::get('index', [NotificationController::class, 'index'])->name('index');
-            Route::get('clear', [NotificationController::class, 'clear'])->name('clear');
-            Route::delete('delete/{id}', [NotificationController::class, 'destroy'])->name('destroy');
-        });
-
         // Department Route Routes
         Route::prefix('department')->name('department.')->controller(DepartmentController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getallDepartment')->name('alldepartment');
+            Route::post('store', 'store')->name('store');
+            Route::post('status', 'status')->name('status');
+            Route::post('delete', 'delete')->name('delete');
+            Route::post('edit', 'edit')->name('edit');
+            Route::post('update', 'update')->name('update');
+        });
+
+
+        // Education Route Routes
+        Route::prefix('education')->name('education.')->controller(EducationController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getallList')->name('alllist');
             Route::post('store', 'store')->name('store');
             Route::post('status', 'status')->name('status');
             Route::post('delete', 'delete')->name('delete');

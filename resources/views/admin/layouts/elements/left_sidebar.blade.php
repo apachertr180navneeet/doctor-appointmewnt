@@ -72,6 +72,12 @@
 				<div data-i18n="Dashboard">Department</div>
 			</a>
 		</li>
+        <li class="menu-item {{ request()->is('admin/education') ? 'active' : ''}}">
+			<a href="{{route('admin.education.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bxs-institution"></i>
+				<div data-i18n="Dashboard">Education</div>
+			</a>
+		</li>
 
 	</ul>
 </aside>
