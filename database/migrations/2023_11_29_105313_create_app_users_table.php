@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('phone_verified_at')->nullable();
-            $table->enum('role',['admin','user'])->default('user');
+            $table->integer('role')->default('0');
             $table->string('address')->default('');
             $table->string('area')->default('');
             $table->string('city')->default('');
