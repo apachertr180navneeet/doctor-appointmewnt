@@ -80,8 +80,14 @@
 		</li>
         <li class="menu-item {{ request()->is('admin/role') ? 'active' : ''}}">
 			<a href="{{route('admin.role.index')}}" class="menu-link">
-				<i class="menu-icon tf-icons bx bx-user"></i>
+				<i class="menu-icon tf-icons bx bx-list-ul"></i>
 				<div data-i18n="Dashboard">Role</div>
+			</a>
+		</li>
+        <li class="menu-item {{ request()->is('admin/doctor') ? 'active' : ''}}">
+			<a href="{{route('admin.doctor.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-user"></i>
+				<div data-i18n="Dashboard">Doctor</div>
 			</a>
 		</li>
 

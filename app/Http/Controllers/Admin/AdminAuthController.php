@@ -15,6 +15,8 @@ use Validator;
 use Session;
 use File;
 use Exception;
+use App\Rules\PhoneNumber;
+
 
 class AdminAuthController extends Controller
 {
@@ -44,7 +46,7 @@ class AdminAuthController extends Controller
 
     public function registration()
     {
-        return view("admin.auth.registration");
+        return view("admin.auth.register");
     }
 
     public function postLogin(Request $request)
@@ -73,11 +75,17 @@ class AdminAuthController extends Controller
 
     public function postRegistration(Request $request)
     {
-        $request->validate([
+
+        $validator = Validator::make($request->all(), [
             "name" => "required",
-            "email" => "required|email|unique:users",
-            "password" => "required|min:6",
+            "email" => "required|unique:users",
+            "phone" => "required|unique:users",
+            "password" => "required|min:6|confirmed",
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()]);
+        }
 
         $data = $request->all();
         $this->create($data);
@@ -87,11 +95,57 @@ class AdminAuthController extends Controller
 
     private function create(array $data)
     {
-        return User::create([
-            "name" => $data["name"],
-            "email" => $data["email"],
-            "password" => Hash::make($data["password"]),
-        ]);
+        $dataname = explode(" ", $data['name']);
+        $slug = $this->createSlug($data['name']);
+        if (count($dataname) < 2) {
+
+            return User::create([
+                "first_name" => $dataname['0'] ?? '',
+                "last_name" => $dataname['1'] ?? '',
+                "full_name" => $data["name"] ?? '',
+                "slug" => $slug,
+                "email" => $data["email"],
+                "password" => Hash::make($data["password"]),
+                "role" => "admin",
+                "phone" => $data["phone"],
+                "address" => $data["address"],
+                "gender" => $data["gender"],
+
+            ]);
+        }else{
+            return User::create([
+                "first_name" => $dataname['0'] ?? '',
+                "last_name" => $dataname['1'] ?? '',
+                "full_name" => $data["name"] ?? '',
+                "slug" => $slug,
+                "email" => $data["email"],
+                "password" => Hash::make($data["password"]),
+                "role" => "admin",
+                "phone" => $data["phone"],
+                "address" => $data["address"],
+                "gender" => $data["gender"],
+
+            ]);
+        }
+    }
+
+    private function createSlug($string) {
+        // Convert the string to lowercase
+        $slug = strtolower($string);
+
+        // Remove any character that is not alphanumeric, a space, or a hyphen
+        $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
+
+        // Replace multiple spaces or hyphens with a single space
+        $slug = preg_replace('/[\s-]+/', ' ', $slug);
+
+        // Replace spaces with hyphens
+        $slug = preg_replace('/\s/', '-', $slug);
+
+        // Trim hyphens from the beginning and end
+        $slug = trim($slug, '-');
+
+        return $slug;
     }
 
     public function showForgetPasswordForm()

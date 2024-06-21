@@ -1,129 +1,97 @@
-@extends('admin.layouts.login_layout') 
+@extends('admin.layouts.login_layout')
+@section('content')
 
-@section('content') 
-
-<section class="breadcrumb-area bread-bg-9">
-    <div class="breadcrumb-wrap">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <div class="breadcrumb-content">
-                        <div class="section-heading">
-                            <h2 class="sec__title text-white"></h2>
+<div class="authentication-wrapper authentication-basic container-p-y">
+    <div class="authentication-inner">
+        <!-- Register -->
+        <div class="card">
+            <div class="card-body">
+                <!-- Logo -->
+                <div class="app-brand justify-content-center">
+                    <a href="index.html" class="app-brand-link gap-2">
+                        <span class="app-brand-text demo text-body fw-bolder text-capitalize">Appointment System</span>
+                    </a>
+                </div>
+                <form action="{{ route('admin.register.post') }}" id="" class="mb-3" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" placeholder="Enter your name" autofocus />
+                        @if ($errors->has('name'))
+                            <span class="text-danger mb-2">{{ $errors->first('name') }}</span>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="Enter your email" />
+                        @if ($errors->has('email'))
+                            <span class="text-danger mb-2">{{ $errors->first('email') }}</span>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter your phone" />
+                        @if ($errors->has('phone'))
+                            <span class="text-danger mb-2">{{ $errors->first('phone') }}</span>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                        @if ($errors->has('address'))
+                            <span class="text-danger mb-2">{{ $errors->first('address') }}</span>
+                        @endif
+                    </div>
+                    <div class="col-md">
+                        <label class="form-label">Gender</label>
+                        <br>
+                        <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="gender" id="male" value="male" checked>
+                            <label class="form-check-label" for="male">Male</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                            <label class="form-check-label" for="female">Female</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gender" id="other" value="other">
+                            <label class="form-check-label" for="other">Other</label>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="breadcrumb-list gs-text-bread">
-                        <ul class="list-items">
-                            <li><a href="/">Home</a></li>
-                            <li></li>
-                        </ul>
+                    <div class="mb-3 form-password-toggle">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="input-group input-group-merge">
+                            <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
+                            <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                            </div>
+                            @if ($errors->has('password'))
+                            <span class="text-danger mb-2">{{ $errors->first('password') }}</span>
+                            @endif
                     </div>
-                </div>
+                    <div class="mb-3 form-password-toggle">
+                        <label class="form-label" for="password_confirmation"> Conform Password</label>
+                        <div class="input-group input-group-merge">
+                            <input type="password" id="password_confirmation" class="form-control" name="password_confirmation" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
+                            <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                            </div>
+                            @if ($errors->has('password_confirmation'))
+                                <span class="text-danger mb-2">{{ $errors->first('password_confirmation') }}</span>
+                            @endif
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
+                    </div>
+                </form>
+                <p class="text-center">
+                    <span>Already have an account?</span>
+                    <a href="{{ route('admin.login') }}">
+                        <span>Sign in instead</span>
+                    </a>
+                </p>
             </div>
         </div>
+        <!-- /Register -->
     </div>
-    
-</section>
-
-<section class="contact-area section--padding">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3">
-              
-            </div>
-            <div class="col-lg-6">
-                <div class="form-box">
-                    <div class="form-title-wrap">
-                        <h3 class="title">Register</h3>
-                        <p class="font-size-15 mb-0">Hello! Welcome Create a New Account</p>
-                    </div>
-                    <div class="form-content ">
-                        <div class="contact-form-action">
-                           <form method="POST" action="{{ route('admin.register') }}">
-                              @csrf
-                              <div class="input-box">
-                                 <label class="label-text">Store Name</label>
-                                 <div class="form-group">
-                                    <span class="la la-store form-icon"></span>
-                                    <input class="form-control{{ $errors->has('store_name') ? ' is-invalid' : '' }}" name="store_name" value="{{ old('store_name') }}" required autofocus type="text" placeholder="Type your store name">
-                                    @if ($errors->has('store_name'))
-                                       <span class="invalid-feedback">
-                                          <strong>{{ $errors->first('store_name') }}</strong>
-                                       </span>
-                                    @endif
-                                 </div>
-                              </div>
-                               <div class="input-box">
-                                  <label class="label-text">Username</label>
-                                  <div class="form-group">
-                                     <span class="la la-user form-icon"></span>
-                                     <input class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }}" name="username" value="{{ old('username') }}" required type="text" placeholder="Type your username">
-                                    @if ($errors->has('username'))
-                                       <span class="invalid-feedback">
-                                          <strong>{{ $errors->first('username') }}</strong>
-                                       </span>
-                                    @endif
-                                  </div>
-                               </div>
-                              
-                               <div class="input-box">
-                                  <label class="label-text">Email Address</label>
-                                  <div class="form-group">
-                                     <span class="la la-envelope form-icon"></span>
-                                     <input class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required type="email" placeholder="Type your email">
-                                    @if ($errors->has('email'))
-                                       <span class="invalid-feedback">
-                                          <strong>{{ $errors->first('email') }}</strong>
-                                       </span>
-                                    @endif
-                                  </div>
-                               </div>
-                               
-                               <div class="input-box">
-                                  <label class="label-text">Password</label>
-                                  <div class="form-group">
-                                     <span class="la la-lock form-icon"></span>
-                                     <input class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" value="{{ old('password') }}" required type="password" placeholder="Type password">
-                                    @if ($errors->has('password'))
-                                       <span class="invalid-feedback">
-                                          <strong>{{ $errors->first('password') }}</strong>
-                                       </span>
-                                    @endif
-                                  </div>
-                               </div>
-                   
-                               <div class="input-box">
-                                  <label class="label-text">Repeat Password</label>
-                                  <div class="form-group">
-                                     <span class="la la-lock form-icon"></span>
-                                     <input class="form-control{{ $errors->has('password_confirmation') ? ' is-invalid' : '' }}" name="password_confirmation" value="{{ old('password_confirmation') }}" required type="password" placeholder="Type again password">
-                                    @if ($errors->has('password_confirmation'))
-                                       <span class="invalid-feedback">
-                                          <strong>{{ $errors->first('password_confirmation') }}</strong>
-                                       </span>
-                                    @endif
-                                  </div>
-                               </div>
-                  
-                               <div class="mt-4 mb-4">
-                                 <button type="submit" class="theme-btn w-100">Register</button>
-                               </div>
-                               <div class="action-box text-center">
-                                  <p class="font-size-14"><a href="Login.html">Already Registered User? Click here to login</a></p>
-                                 
-                               </div>
-                            </form>
-                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3">
-              
-            </div>
-        </div>
-    </div>
-</section>
+</div>
 
 @endsection

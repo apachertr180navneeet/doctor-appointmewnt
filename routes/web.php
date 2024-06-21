@@ -10,7 +10,8 @@ use App\Http\Controllers\Admin\{
     AdminUserController,
     DepartmentController,
     EducationController,
-    RoleController
+    RoleController,
+    DoctorController
 };
 
 /*
@@ -34,6 +35,8 @@ Route::name('admin.')->prefix('admin')->group(function () {
     Route::get('/', [AdminAuthController::class, 'index']);
     Route::get('login', [AdminAuthController::class, 'login'])->name('login');
     Route::post('login', [AdminAuthController::class, 'postLogin'])->name('login.post');
+    Route::get('register', [AdminAuthController::class, 'registration'])->name('register');
+    Route::post('register', [AdminAuthController::class, 'postRegistration'])->name('register.post');
     Route::get('forget-password', [AdminAuthController::class, 'showForgetPasswordForm'])->name('forget.password.get');
     Route::post('forget-password', [AdminAuthController::class, 'submitForgetPasswordForm'])->name('forget.password.post');
     Route::get('reset-password/{token}', [AdminAuthController::class, 'showResetPasswordForm'])->name('reset.password.get');
@@ -76,6 +79,18 @@ Route::name('admin.')->prefix('admin')->group(function () {
         Route::prefix('role')->name('role.')->controller(RoleController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getallList')->name('alllist');
+            Route::post('store', 'store')->name('store');
+            Route::post('status', 'status')->name('status');
+            Route::post('delete', 'delete')->name('delete');
+            Route::post('edit', 'edit')->name('edit');
+            Route::post('update', 'update')->name('update');
+        });
+
+         // doctor Route Routes
+         Route::prefix('doctor')->name('doctor.')->controller(DoctorController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getallList')->name('alllist');
+            Route::get('create', 'create')->name('create');
             Route::post('store', 'store')->name('store');
             Route::post('status', 'status')->name('status');
             Route::post('delete', 'delete')->name('delete');
