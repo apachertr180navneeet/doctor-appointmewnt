@@ -17,11 +17,37 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                @foreach ( $users as $user)
+                                    <tr>
+                                        <td>{{ $user->full_name }}</td>
+                                        <td>{{ $user->email }}</td>
+                                        <td>{{ $user->phone }}</td>
+                                        <td>
+                                            @if($user->status == "active")
+                                                <span class="badge bg-label-success me-1">Active</span>
+                                            @else
+                                                <span class="badge bg-label-danger me-1">Inactive</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($user->status == "active")
+                                                <button type="button" class="btn btn-sm btn-danger" onclick="toggleStatus({{ $user->id }}, 'inactive')">Inactive</button>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-success" onclick="toggleStatus({{ $user->id }}, 'active')">Active</button>
+                                            @endif
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="toggleDelete({{ $user->id }})">Delete</button>
+                                            <a href="{{ route('admin.doctor.edit', $user->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -41,9 +67,8 @@
 
         // Define URLs and CSRF token for AJAX requests
         const urls = {
-            ajax: "{{route('admin.education.alllist')}}",
-            status: "{{route('admin.education.status')}}",
-            delete: "{{route('admin.education.delete')}}",
+            status: "{{route('admin.doctor.status')}}",
+            delete: "{{route('admin.doctor.delete')}}",
         };
         const token = "{{ csrf_token() }}";
 
@@ -53,42 +78,14 @@
 
             $table.DataTable({
                 processing: true,
-                ajax: { url: urls.ajax },
-                columns: [
-                    { data: "name" },
-                    {
-                        data: "status",
-                        render: (data, type, row) => {
-                            return row.status === 'active' ?
-                                '<span class="badge bg-label-success me-1">Active</span>' :
-                                '<span class="badge bg-label-danger me-1">Inactive</span>';
-                        }
-                    },
-                    {
-                        data: "action",
-                        render: (data, type, row) => {
-                            const buttonClass = row.status === 'inactive' ? 'success' : 'danger';
-                            const newStatus = row.status === 'inactive' ? 'active' : 'inactive';
-                            return `
-                                <button type="button" class="btn btn-sm btn-${buttonClass}" onclick="toggleStatus(${row.id}, '${newStatus}')">${capitalize(newStatus)}</button>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="toggleDelete(${row.id})">Delete</button>
-                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUnit" onclick="toggleEdit(${row.id})">Edit</button>`;
-                        }
-                    }
-                ],
             });
-        }
-
-        // Capitalize the first letter of a string
-        function capitalize(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
         // Function to toggle the status of a unit
         function toggleStatus(id, newStatus) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: newStatus === 'active' ? 'Department is activated' : 'Department is deactivated',
+                text: newStatus === 'active' ? 'Doctor is activated' : 'Doctor is deactivated',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -102,8 +99,8 @@
                         data: { id: id, status: newStatus, _token: token },
                         success: (response) => {
                             const messageType = response.success ? 'success' : 'error';
-                            setFlash(messageType, response.success ? `Department ${capitalize(newStatus)} Successfully` : 'Error changing status! Please contact the administrator');
-                            $table.DataTable().ajax.reload();
+                            setFlash(messageType, response.success ? `Doctor ${capitalize(newStatus)} Successfully` : 'Error changing status! Please contact the administrator');
+                            location.reload();
                         },
                         error: () => setFlash('error', 'An error occurred while changing status! Please contact the administrator.')
                     });
@@ -115,7 +112,7 @@
         function toggleDelete(Id) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: 'Department will be deleted!',
+                text: 'Doctor will be deleted!',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -129,13 +126,18 @@
                         data: { Id, _token: token },
                         success: (response) => {
                             const messageType = response.success ? 'success' : 'error';
-                            setFlash(messageType, response.success ? 'Department Deleted Successfully' : 'Error deleting Department! Please contact the administrator');
-                            $table.DataTable().ajax.reload();
+                            setFlash(messageType, response.success ? 'Doctor Deleted Successfully' : 'Error deleting Doctor! Please contact the administrator');
+                            location.reload();
                         },
                         error: () => setFlash('error', 'An error occurred while deleting Department! Please contact the administrator.')
                     });
                 }
             });
+        }
+
+        // Capitalize the first letter of a string
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
         // Attach toggle functions to the window object
@@ -148,7 +150,7 @@
 
     // Helper function to set flash messages using Toastr
     function setFlash(type, message) {
-
+        setFlesh(type,message);
     }
 
 </script>

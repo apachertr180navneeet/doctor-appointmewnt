@@ -21,7 +21,7 @@ use App\Models\SplashScreen;
 
 class AuthController extends Controller
 {
-    
+
     public function splashScreens(){
         $base_url = asset('/');
         $splash_screens = SplashScreen::select('type','heading','content','image')->get();
@@ -43,7 +43,7 @@ class AuthController extends Controller
             'phone' => 'required|digits_between:4,13',
             'country_code' => "required|max:5",
         ]);
-        
+
         if($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -69,8 +69,8 @@ class AuthController extends Controller
             'status' => true,
             'message' =>  'A one-time password has been sent to your phone, please check.',
         ],200);
-            
-        
+
+
     }
 
     public function verifyPhoneOtp(Request $request){
@@ -86,7 +86,7 @@ class AuthController extends Controller
                 'message' =>  $validator->errors()->first(),
             ],200);
         }
-        
+
         $phone_user = PhoneOtp::where('country_code',$data['country_code'])->where('phone',$data['phone'])->first();
         if($phone_user){
             $date = date('Y-m-d H:i:s');
@@ -117,10 +117,10 @@ class AuthController extends Controller
                 'message'=>'Invalid phone number. Please check and try again'
             ],200);
         }
-        
+
     }
 
-    public function register(Request $request) 
+    public function register(Request $request)
     {
         $data = $request->all();
         $validator = Validator::make($data, [
@@ -148,7 +148,7 @@ class AuthController extends Controller
             'password.min' => 'Password must be at least 6 characters long',
             'dob.before_or_equal' => 'The date of birth must be greater than or equal to 16 years ago.',
         ]);
-        
+
         if($validator->fails()){
             return response()->json([
                 'status' => false,
@@ -180,7 +180,7 @@ class AuthController extends Controller
             $app_user->device_token = $request->device_token ?? '';
             $app_user->avatar = $request->avatar;
             $app_user->save();
-            
+
             return response()->json([
                 'status' => true,
                 'message' => 'Otp is sent on your phone! Please verify otp to complete your registration',
@@ -193,7 +193,7 @@ class AuthController extends Controller
                 'message' => $e->getMessage(),
             ],200);
         }
-        
+
     }
 
     public function verifyRegister(Request $request){
@@ -210,18 +210,18 @@ class AuthController extends Controller
             ],200);
         }
 
-        
+
         $date = date('Y-m-d H:i:s');
         $currentTime = strtotime($date);
         $phone_user = PhoneOtp::where('phone',$data['phone'])->where('country_code',$data['country_code'])->where('otp',$data['otp'])->first();
         $app_user = AppUser::where('phone',$data['phone'])->where('country_code',$data['country_code'])->first();
-        
+
         if(!$phone_user){
             return response()->json([
                 'status' => false,
                 'message'=>'Please enter valid otp.'
             ],200);
-            
+
         }
         if($currentTime > $phone_user->otp_expire_time){
             return response()->json([
@@ -258,7 +258,7 @@ class AuthController extends Controller
             $user->status = 'active';
             $user->save();
             DB::commit();
-            
+
 
             // Mail::to($user->email)->send(new UserRegisterVerifyMail($user));
             //============ Make User Login ==========//
@@ -267,7 +267,7 @@ class AuthController extends Controller
             $input['password'] = $app_user->password;
             $token = JWTAuth::attempt($input);
             $app_user->delete();
-            
+
             return response()->json([
                 'status' => true,
                 'message'=>'Account created successfully!',
@@ -275,7 +275,7 @@ class AuthController extends Controller
                 'token_type' => 'bearer',
                 'user' => $this->getUserDetail($user->id),
             ],200);
-            
+
         }catch (Exception $e) {
             DB::rollback();
             return response()->json([
@@ -286,7 +286,7 @@ class AuthController extends Controller
 
     }
 
-    
+
     public function login(Request $request)
     {
         $data = $request->all();
@@ -304,25 +304,25 @@ class AuthController extends Controller
                 'message' => $validator->errors()->first(),
             ],200);
         }
-        
+
         try
         {
             $user = User::where('phone',$data['phone'])->where('country_code',$data['country_code'])->where('role','user')->first();
-           
+
             if(!$user){
                 return response()->json([
                     'status' => false,
                     'message' => 'Phone number not exists',
-                ]);      
+                ]);
             }
 
             if($user->status == 'inactive'){
                 return response()->json([
                     'status' => false,
                     'message' => 'Your account is not activacted yet.',
-                ]);      
+                ]);
             }
-            
+
             $input['phone'] = $data['phone'];
             $input['country_code'] = $data['country_code'];
             $input['password'] = $data['password'];
@@ -338,7 +338,7 @@ class AuthController extends Controller
             $user->device_type = $data['device_type'];
             $user->device_token = $data['device_token'];
             $user->save();
-            
+
             return response()->json([
                 'status' => true,
                 'message'=>'Loggedin successfully.',
@@ -369,7 +369,7 @@ class AuthController extends Controller
         ],200);
     }
 
-    public function getUser() 
+    public function getUser()
     {
         try{
             $user = JWTAuth::parseToken()->authenticate();
@@ -385,7 +385,7 @@ class AuthController extends Controller
                     'message' => 'User found successfully.',
                     'user' => $this->getUserDetail($user->id),
                 ],200);
-            } 
+            }
         }catch(Exception $e){
             return response()->json([
                 'status' => false,
@@ -401,14 +401,14 @@ class AuthController extends Controller
             'country_code' => "required|exists:users,country_code|max:5",
             'password' => 'required|string|confirmed|min:6',
         ]);
-        
+
         if($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'message' =>  $validator->errors()->first(),
             ],200);
         }
-        
+
         $user = User::where('phone',$data['phone'])->where('country_code',$data['country_code'])->first();
         if($user){
             if(Hash::check($request->password,$user->password)){
@@ -421,22 +421,22 @@ class AuthController extends Controller
                 $user->save();
                 return response()->json([
                     'status' => true,
-                    'message' =>  'New Password set successfully.Please Login'    
+                    'message' =>  'New Password set successfully.Please Login'
                 ],200);
-            } 
-        } 
+            }
+        }
         else{
             return response()->json([
                 'status' => false,
                 'message' =>  'Phone number user not exists'
             ],200);
         }
-        
+
     }
 
     public function changePassword(Request $request){
         $data = $request->all();
-        $user = auth()->user();  
+        $user = auth()->user();
         $validator = Validator::make($data, [
             'old_password' => 'required',
             'new_password' => 'confirmed|required|string|min:6',
@@ -447,15 +447,15 @@ class AuthController extends Controller
                 'message' =>  $validator->errors()->first()
             ],200);
         }
-        
-        $user = auth()->user();  
+
+        $user = auth()->user();
         if(Hash::check($request->new_password,$user->password)) {
             return response()->json([
                 'status' => false,
                 'message' =>  'Cannot use your old password as new password.',
             ],200);
         }
-        
+
         if(!Hash::check($request->old_password,$user->password)) {
             return response()->json([
                 'status' => false,
@@ -464,7 +464,7 @@ class AuthController extends Controller
 
             ],200);
         }
-     
+
         $user->password = Hash::make($request->new_password);
         $user->save();
         // JWTAuth::parseToken()->invalidate(true);
@@ -473,9 +473,9 @@ class AuthController extends Controller
             'message' =>  'Password changed successfully',
             'user' => $this->getUserDetail($user->id),
         ],200);
-         
+
     }
-    
+
     public function updateProfile(Request $request){
         $data   =   $request->all();
         $id = auth()->user()->id;
@@ -503,7 +503,7 @@ class AuthController extends Controller
             'dob.after_or_equal' => 'The date of birth must be greater than or equal to 16 years ago.',
         ]);
 
-       
+
         if($validator->fails()) {
             return response()->json(array(
                 'status' => false,
@@ -512,7 +512,7 @@ class AuthController extends Controller
         }
 
         try{
-            
+
             $user = User::find($id);
             foreach($data as $key => $value){
                 if(!empty($data[$key])){
@@ -523,7 +523,7 @@ class AuthController extends Controller
                     elseif($key == 'last_name'){
                         $user->last_name = $value;
                         $user->full_name = $user->first_name.' '.$user->last_name;
-                        
+
                     }
                     elseif($key == 'avatar'){
                         $file = $request->file('avatar');
@@ -545,7 +545,7 @@ class AuthController extends Controller
                 }
             }
             $user->save();
-            
+
             return response()->json(array(
                 'status' => true,
                 'message' => 'Profile updated successfully!',
@@ -557,10 +557,10 @@ class AuthController extends Controller
                 'status' => false,
                 'message' => $e->getMessage()
             ),200);
-        }    
+        }
     }
 
-    
+
     public function getUserDetail($user_id){
         $user = User::where('id',$user_id)->first();
         return $user;
@@ -589,7 +589,7 @@ class AuthController extends Controller
                 'status' => true,
                 'message' => 'Account deleted successfully.'
             ),200);
-            
+
         }
         catch(Exception $e){
             DB::rollback();
@@ -597,7 +597,7 @@ class AuthController extends Controller
                 'status' => false,
                 'message' => $e->getMessage()
             ),200);
-        }   
+        }
 
 
     }

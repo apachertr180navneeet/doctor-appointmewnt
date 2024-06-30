@@ -272,7 +272,7 @@
 
     // Helper function to set flash messages using Toastr
     function setFlash(type, message) {
-
+        setFlesh(type,message);
     }
 
 </script>

@@ -58,7 +58,7 @@
                                 <label for="education" class="form-label">Education</label>
                                 <select class="form-select" id="education" name="education">
                                     <option value="" selected>Select Education</option>
-                                    @foreach($eductions as $education)
+                                    @foreach($educations as $education)
                                         <option value="{{ $education->id }}" {{ old('education') == $education->id ? 'selected' : '' }}>{{ $education->name }}</option>
                                     @endforeach
                                 </select>

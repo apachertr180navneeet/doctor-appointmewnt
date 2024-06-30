@@ -304,6 +304,7 @@
     // Helper function to set flash messages
     function setFlash(type, message) {
         // Implement your flash message logic here
+        setFlesh(type,message);
     }
 </script>
 @endsection

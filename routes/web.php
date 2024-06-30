@@ -94,7 +94,8 @@ Route::name('admin.')->prefix('admin')->group(function () {
             Route::post('store', 'store')->name('store');
             Route::post('status', 'status')->name('status');
             Route::post('delete', 'delete')->name('delete');
-            Route::post('edit', 'edit')->name('edit');
+            Route::get('edit/{id}', 'edit')->name('edit');
+            Route::post('update', 'update')->name('update');
             Route::post('update', 'update')->name('update');
         });
     });
