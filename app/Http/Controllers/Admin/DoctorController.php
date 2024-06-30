@@ -11,7 +11,7 @@ use Carbon\Carbon;
 
 class DoctorController extends Controller
 {
-    //========================= User Member Functions ========================//
+    //========================= doctors Member Functions ========================//
 
     /**
      * Display a listing of the doctors.
@@ -204,6 +204,21 @@ class DoctorController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->withError($e->getMessage());
         }
+    }
+
+    /**
+     * Show the form for showing a doctor.
+     */
+    public function show($id)
+    {
+        // Retrieve doctor data
+        $doctordata = User::select('users.id','users.full_name','users.email','users.phone','users.gender','users.role','users.avatar','department.department', 'education.name')
+                        ->where('users.id', $id)
+                        ->join('department', 'users.department', '=', 'department.id')
+                        ->join('education', 'users.education', '=', 'education.id')
+                        ->first(); // Use first() instead of get()
+
+        return view('admin.doctor.show', compact('doctordata'));
     }
 
     /**

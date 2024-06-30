@@ -37,6 +37,7 @@
                                             @endif
                                         </td>
                                         <td>
+                                            <a href="{{ route('admin.doctor.show', $user->id) }}" class="btn btn-sm btn-info">View</a>
                                             @if($user->status == "active")
                                                 <button type="button" class="btn btn-sm btn-danger" onclick="toggleStatus({{ $user->id }}, 'inactive')">Inactive</button>
                                             @else
