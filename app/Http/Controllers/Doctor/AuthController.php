@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use App\Models\{User, Education, Department};
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Mail;
@@ -269,7 +269,11 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
-            return view("doctor.auth.profile", compact("user"));
+
+            $educations = Education::where('status', 'active')->get();
+            $departments = Department::where('status', 'active')->get();
+
+            return view("doctor.auth.profile", compact("user","educations","departments"));
         } catch (Exception $e) {
             return back()->with("error", $e->getMessage());
         }
@@ -313,6 +317,9 @@ class AuthController extends Controller
                 "full_name" => $request->first_name . ' ' . $request->last_name,
                 "phone" => $request->phone,
                 "email" => $request->email,
+                'gender' => $request->gender,
+                'education' => $request->education,
+                'department' => $request->department,
             ]);
 
             return back()->with("success", "Profile updated successfully!");

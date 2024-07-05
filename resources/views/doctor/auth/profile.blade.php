@@ -78,6 +78,42 @@
                                     <img src="{{asset('assets/admin/img/avatars/1.png')}}" class="user-image" id="user-image">
                                 @endif
                             </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="" {{ $user->gender == null ? 'selected' : '' }}>Select Gender</option>
+                                    <option value="male" {{ $user->gender == 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ $user->gender == 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="other" {{ $user->gender == 'other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                                @error('gender')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="education" class="form-label">Education</label>
+                                <select class="form-select" id="education" name="education">
+                                    <option value="" selected>Select Education</option>
+                                    @foreach($educations as $education)
+                                        <option value="{{ $education->id }}" {{ $user->education == $education->id ? 'selected' : '' }}>{{ $education->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('education')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="department" class="form-label">Department</label>
+                                <select class="form-select" id="department" name="department">
+                                    <option value="" {{ old('department') == null ? 'selected' : '' }}>Select Department</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->id }}" {{ $user->department == $department->id ? 'selected' : '' }}>{{ $department->department }}</option>
+                                    @endforeach
+                                </select>
+                                @error('department')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="pt-4">
