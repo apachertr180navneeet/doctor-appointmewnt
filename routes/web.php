@@ -109,6 +109,7 @@ Route::name('admin.')->prefix('admin')->group(function () {
             Route::post('delete', 'delete')->name('delete');
             Route::get('show/{id}', 'show')->name('show');
             Route::post('check', 'check')->name('check');
+            Route::post('update/time', 'updateTime')->name('update.time');
         });
     });
 });

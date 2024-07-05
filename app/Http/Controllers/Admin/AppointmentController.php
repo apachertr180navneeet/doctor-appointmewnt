@@ -106,21 +106,42 @@ class AppointmentController extends Controller
 
         $date = $appointmentdata->date;
 
-        return view('admin.appointment.show', compact('appointmentdata','date'));
+        $times = Time::where('appointment_id',$id)->get();
+
+        return view('admin.appointment.show', compact('appointmentdata','date', 'times'));
     }
 
 
-    public function check(Request $request){
-
+    public function check(Request $request)
+    {
         $date = $request->date;
-        $appointment= Appointment::where('date',$date)->where('user_id',auth()->user()->id)->first();
-        if(!$appointment){
-            return redirect()->to('/appointment')->with('errmessage','Appointment time not available for this date');
+        $userid = $request->userid;
+        $appointmentid = $request->appointmentid;
+        $appointment = Appointment::where('date', $date)->where('user_id', $userid)->first();
+
+        if (!$appointment) {
+            return redirect()->route('admin.appointment.show', ['id' => $appointmentid])
+                            ->with('error', 'Appointment time not available for this date');
         }
+
         $appointmentId = $appointment->id;
-        $times = Time::where('appointment_id',$appointmentId)->get();
+        $times = Time::where('appointment_id', $appointmentId)->get();
 
-
-        return view('admin.appointment.show',compact('times','appointmentId','date'));
+        return view('admin.appointment.show', compact('times', 'appointmentId', 'date'));
     }
+
+    public function updateTime(Request $request){
+        $appointmentId = $request->appoinmentId;
+        $appointment = Time::where('appointment_id',$appointmentId)->delete();
+        foreach($request->time as $time){
+            Time::create([
+                'appointment_id'=>$appointmentId,
+                'time'=>$time,
+                'status'=>0
+            ]);
+        }
+        return redirect()->route('admin.appointment.show', ['id' => $appointmentId])
+                            ->with('success', 'Appointment time updated!!');
+    }
+
 }
