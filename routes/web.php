@@ -15,6 +15,10 @@ use App\Http\Controllers\Admin\{
     AppointmentController
 };
 
+use App\Http\Controllers\Doctor\{
+    AuthController,
+};
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -114,8 +118,31 @@ Route::name('admin.')->prefix('admin')->group(function () {
     });
 });
 
-// Authenticated User Routes
-Route::middleware(['auth'])->group(function () {
-    // Add routes that require user authentication here
+
+
+
+// Doctor Routes
+Route::name('doctor.')->prefix('doctor')->group(function () {
+
+    Route::get('login', [AuthController::class, 'login'])->name('login');
+    Route::post('login', [AuthController::class, 'postLogin'])->name('login.post');
+    Route::get('register', [AuthController::class, 'register'])->name('register');
+    Route::post('register', [AuthController::class, 'postRegistration'])->name('register.post');
+    Route::get('forget-password', [AuthController::class, 'showForgetPasswordForm'])->name('forget.password.get');
+    Route::post('forget-password', [AuthController::class, 'submitForgetPasswordForm'])->name('forget.password.post');
+    Route::get('reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('reset.password.get');
+    Route::post('reset-password', [AuthController::class, 'submitResetPasswordForm'])->name('reset.password.post');
+
+
+    // Authenticated User Routes
+    Route::middleware(['auth'])->group(function () {
+        // Add routes that require user authentication here
+        Route::get('dashboard', [AuthController::class, 'doctorDashoard'])->name('dashboard');
+        Route::get('change-password', [AuthController::class, 'changePassword'])->name('change.password');
+        Route::post('update-password', [AuthController::class, 'updatePassword'])->name('update.password');
+        Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::get('profile', [AuthController::class, 'adminProfile'])->name('profile');
+        Route::post('profile', [AuthController::class, 'updateAdminProfile'])->name('update.profile');
+    });
 });
 

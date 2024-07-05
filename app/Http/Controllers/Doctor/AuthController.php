@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -17,8 +17,7 @@ use File;
 use Exception;
 use App\Rules\PhoneNumber;
 
-
-class AdminAuthController extends Controller
+class AuthController extends Controller
 {
     public function index()
     {
@@ -26,14 +25,14 @@ class AdminAuthController extends Controller
             $user = Auth::user();
 
             if ($user) {
-                if ($user->role == "admin") {
-                    return redirect()->route('admin.dashboard');
+                if ($user->role == "doctor") {
+                    return redirect()->route('doctor.dashboard');
                 }
 
                 return back()->with("error", "Oops! You do not have access to this");
             }
 
-            return redirect()->route('admin.login');
+            return redirect()->route('doctor.login');
         } catch (Exception $e) {
             return back()->with("error", $e->getMessage());
         }
@@ -41,12 +40,7 @@ class AdminAuthController extends Controller
 
     public function login()
     {
-        return view("admin.auth.login");
-    }
-
-    public function registration()
-    {
-        return view("admin.auth.register");
+        return view("doctor.auth.login");
     }
 
     public function postLogin(Request $request)
@@ -60,11 +54,11 @@ class AdminAuthController extends Controller
             $credentials = [
                 'email' => $request->email,
                 'password' => $request->password,
-                'role' => 'admin'
+                'role' => 'doctor'
             ];
 
             if (Auth::attempt($credentials)) {
-                return redirect()->route("admin.dashboard")->with("success", "Welcome to your dashboard.");
+                return redirect()->route("doctor.dashboard")->with("success", "Welcome to your dashboard.");
             }
 
             return back()->with("error", "Invalid credentials");
@@ -73,9 +67,13 @@ class AdminAuthController extends Controller
         }
     }
 
+    public function register()
+    {
+        return view("doctor.auth.register");
+    }
+
     public function postRegistration(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             "name" => "required",
             "email" => "required|unique:users",
@@ -83,14 +81,23 @@ class AdminAuthController extends Controller
             "password" => "required|min:6|confirmed",
         ]);
 
+        // Handle validation failures
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()]);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $data = $request->all();
         $this->create($data);
 
-        return redirect()->route("admin.dashboard")->with("success", "Great! You have successfully registered.");
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password,
+            'role' => 'doctor'
+        ];
+
+        if (Auth::attempt($credentials)) {
+            return redirect()->route("doctor.dashboard")->with("success", "Great! You have successfully registered.");
+        }
     }
 
     private function create(array $data)
@@ -106,7 +113,7 @@ class AdminAuthController extends Controller
                 "slug" => $slug,
                 "email" => $data["email"],
                 "password" => Hash::make($data["password"]),
-                "role" => "admin",
+                "role" => "doctor",
                 "phone" => $data["phone"],
                 "address" => $data["address"],
                 "gender" => $data["gender"],
@@ -120,7 +127,7 @@ class AdminAuthController extends Controller
                 "slug" => $slug,
                 "email" => $data["email"],
                 "password" => Hash::make($data["password"]),
-                "role" => "admin",
+                "role" => "doctor",
                 "phone" => $data["phone"],
                 "address" => $data["address"],
                 "gender" => $data["gender"],
@@ -148,9 +155,25 @@ class AdminAuthController extends Controller
         return $slug;
     }
 
+    public function doctorDashoard()
+    {
+        return view("doctor.dashboard.index");
+    }
+
+    public function logout()
+    {
+        try {
+            Session::flush();
+            Auth::logout();
+            return redirect()->route("doctor.login")->with("success", "Logout Successful!");
+        } catch (Exception $e) {
+            return back()->with("error", $e->getMessage());
+        }
+    }
+
     public function showForgetPasswordForm()
     {
-        return view("admin.auth.forgot-password");
+        return view("doctor.auth.forgot-password");
     }
 
     public function submitForgetPasswordForm(Request $request)
@@ -168,13 +191,13 @@ class AdminAuthController extends Controller
                 "created_at" => Carbon::now(),
             ]);
 
-            $resetLink = url("admin/reset-password/" . $token);
+            $resetLink = url("doctor/reset-password/" . $token);
             Mail::send("email.forgot-password", ["token" => $resetLink, "email" => $request->email], function ($message) use ($request) {
                 $message->to($request->email);
                 $message->subject("Reset Password");
             });
 
-            return redirect()->route("admin.login")->with("success", "We have e-mailed your password reset link!");
+            return redirect()->route("doctor.login")->with("success", "We have e-mailed your password reset link!");
         } catch (Exception $e) {
             return back()->with("error", $e->getMessage());
         }
@@ -183,8 +206,8 @@ class AdminAuthController extends Controller
     public function showResetPasswordForm($token)
     {
         try {
-            $user = DB::table("password_resets")->where("token", $token)->firstOrFail();
-            return view("admin.auth.reset-password", ["token" => $token, "email" => $user->email]);
+            $user = DB::table("password_resets")->where("token", $token)->first();
+            return view("doctor.auth.reset-password", ["token" => $token, "email" => $user->email]);
         } catch (Exception $e) {
             return back()->with("error", $e->getMessage());
         }
@@ -209,7 +232,7 @@ class AdminAuthController extends Controller
 
             DB::table("password_resets")->where(["email" => $request->email])->delete();
 
-            return redirect()->route("admin.login")->with("success", "Your password has been changed successfully!");
+            return redirect()->route("doctor.login")->with("success", "Your password has been changed successfully!");
         } catch (Exception $e) {
             return back()->with("error", $e->getMessage());
         }
@@ -217,7 +240,7 @@ class AdminAuthController extends Controller
 
     public function changePassword()
     {
-        return view("admin.auth.change-password");
+        return view("doctor.auth.change-password");
     }
 
     public function updatePassword(Request $request)
@@ -242,22 +265,11 @@ class AdminAuthController extends Controller
         }
     }
 
-    public function logout()
-    {
-        try {
-            Session::flush();
-            Auth::logout();
-            return redirect()->route("admin.login")->with("success", "Logout Successful!");
-        } catch (Exception $e) {
-            return back()->with("error", $e->getMessage());
-        }
-    }
-
     public function adminProfile()
     {
         try {
             $user = Auth::user();
-            return view("admin.auth.profile", compact("user"));
+            return view("doctor.auth.profile", compact("user"));
         } catch (Exception $e) {
             return back()->with("error", $e->getMessage());
         }
@@ -307,10 +319,5 @@ class AdminAuthController extends Controller
         } catch (Exception $e) {
             return back()->with("error", $e->getMessage());
         }
-    }
-
-    public function adminDashboard()
-    {
-        return view("admin.dashboard.index");
     }
 }
