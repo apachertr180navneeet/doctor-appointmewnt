@@ -103,16 +103,12 @@ Route::name('admin.')->prefix('admin')->group(function () {
 
         // Appointment Route Routes
         Route::prefix('appointment')->name('appointment.')->controller(AppointmentController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('all', 'getallList')->name('alllist');
-            Route::get('create', 'create')->name('create');
+            Route::get('/{id}', 'index')->name('index');
+            Route::get('create/{id}', 'create')->name('create');
             Route::post('store', 'store')->name('store');
-            Route::post('status', 'status')->name('status');
             Route::post('delete', 'delete')->name('delete');
-            Route::get('edit/{id}', 'edit')->name('edit');
-            Route::post('update', 'update')->name('update');
-            Route::post('update', 'update')->name('update');
             Route::get('show/{id}', 'show')->name('show');
+            Route::post('check', 'check')->name('check');
         });
     });
 });
