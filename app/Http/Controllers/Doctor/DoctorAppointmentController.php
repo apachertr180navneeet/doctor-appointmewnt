@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -9,28 +9,27 @@ use Illuminate\Support\Facades\{Session, Redirect, Validator, Storage, Log};
 use Mail, Hash, File, DB, Helper, Auth;
 use Carbon\Carbon;
 
-class AppointmentController extends Controller
+class DoctorAppointmentController extends Controller
 {
     //========================= Appointment Member Functions ========================//
 
     /**
      * Display a listing of the Appointment.
      */
-    public function index($id)
+    public function index()
     {
-        $usersId = $id;
+        $usersId = Auth::user()->id;
         // Retrieve all Appointment
         $appointments = Appointment::where('user_id', $usersId)->get();
-        return view('admin.appointment.index',compact('usersId','appointments'));
+        return view('doctor.appointment.index',compact('usersId','appointments'));
     }
 
     /**
      * Show the form for creating a new Appointment.
      */
-    public function create($id)
+    public function create()
     {
-        $usersId = $id;
-        return view('admin.appointment.create',compact('usersId'));
+        return view('doctor.appointment.create');
     }
 
     /**
@@ -51,7 +50,7 @@ class AppointmentController extends Controller
 
         // Appointment Created
         $appointment = Appointment::create([
-            'user_id' => $request->userid,
+            'user_id' => Auth::user()->id,
             'date' => $request->date
         ]);
 
@@ -65,7 +64,7 @@ class AppointmentController extends Controller
         }
 
         // Redirect with success message
-        return redirect()->route('admin.appointment.index', ['id' => $request->userid])->with('success', 'Appointment created for '. $request->date);
+        return redirect()->route('doctor.appointment.index')->with('success', 'Appointment created for '. $request->date);
     }
 
     /**
@@ -108,7 +107,7 @@ class AppointmentController extends Controller
 
         $times = Time::where('appointment_id',$id)->get();
 
-        return view('admin.appointment.show', compact('appointmentdata','date', 'times'));
+        return view('doctor.appointment.show', compact('appointmentdata','date', 'times'));
     }
 
 
@@ -120,14 +119,14 @@ class AppointmentController extends Controller
         $appointmentdata = Appointment::where('date', $date)->where('user_id', $userid)->first();
 
         if (!$appointmentdata) {
-            return redirect()->route('admin.appointment.show', ['id' => $appointmentid])
+            return redirect()->route('doctor.appointment.show', ['id' => $appointmentid])
                             ->with('error', 'Appointment time not available for this date');
         }
 
         $appointmentId = $appointmentdata->id;
         $times = Time::where('appointment_id', $appointmentId)->get();
 
-        return view('admin.appointment.show', compact('times', 'appointmentdata', 'date'));
+        return view('doctor.appointment.show', compact('times', 'appointmentdata', 'date'));
     }
 
     public function updateTime(Request $request){
@@ -140,7 +139,7 @@ class AppointmentController extends Controller
                 'status'=>0
             ]);
         }
-        return redirect()->route('admin.appointment.show', ['id' => $appointmentId])
+        return redirect()->route('doctor.appointment.show', ['id' => $appointmentId])
                             ->with('success', 'Appointment time updated!!');
     }
 

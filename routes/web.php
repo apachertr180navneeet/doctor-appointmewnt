@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\{
 
 use App\Http\Controllers\Doctor\{
     AuthController,
+    DoctorAppointmentController
 };
 
 /*
@@ -143,6 +144,17 @@ Route::name('doctor.')->prefix('doctor')->group(function () {
         Route::get('logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('profile', [AuthController::class, 'adminProfile'])->name('profile');
         Route::post('profile', [AuthController::class, 'updateAdminProfile'])->name('update.profile');
+
+         // Appointment Route Routes
+         Route::prefix('appointment')->name('appointment.')->controller(DoctorAppointmentController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create/', 'create')->name('create');
+            Route::post('store', 'store')->name('store');
+            Route::post('delete', 'delete')->name('delete');
+            Route::get('show/{id}', 'show')->name('show');
+            Route::post('check', 'check')->name('check');
+            Route::post('update/time', 'updateTime')->name('update.time');
+        });
     });
 });
 

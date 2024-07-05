@@ -1,6 +1,6 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
 	<div class="app-brand demo">
-		<a href="{{route('admin.dashboard')}}" class="app-brand-link">
+		<a href="{{route('doctor.dashboard')}}" class="app-brand-link">
 			<span class="app-brand-logo demo">
 				<svg width="25" viewBox="0 0 25 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
 					xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -58,7 +58,7 @@
 
 	<ul class="menu-inner py-1">
 		<li class="menu-item {{ request()->is('admin/dashboard') ? 'active' : ''}}">
-			<a href="{{route('admin.dashboard')}}" class="menu-link">
+			<a href="{{route('doctor.dashboard')}}" class="menu-link">
 				<i class="menu-icon tf-icons bx bx-home-circle"></i>
 				<div data-i18n="Dashboard">Dashboard</div>
 			</a>
@@ -66,28 +66,10 @@
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Master</span>
         </li>
-        <li class="menu-item {{ request()->is('admin/department') ? 'active' : ''}}">
-			<a href="{{route('admin.department.index')}}" class="menu-link">
+        <li class="menu-item {{ request()->is('admin/appointment') ? 'active' : ''}}">
+			<a href="{{route('doctor.appointment.index')}}" class="menu-link">
 				<i class="menu-icon tf-icons bx bxs-user-detail"></i>
-				<div data-i18n="Dashboard">Department</div>
-			</a>
-		</li>
-        <li class="menu-item {{ request()->is('admin/education') ? 'active' : ''}}">
-			<a href="{{route('admin.education.index')}}" class="menu-link">
-				<i class="menu-icon tf-icons bx bxs-institution"></i>
-				<div data-i18n="Dashboard">Education</div>
-			</a>
-		</li>
-        <li class="menu-item {{ request()->is('admin/role') ? 'active' : ''}}">
-			<a href="{{route('admin.role.index')}}" class="menu-link">
-				<i class="menu-icon tf-icons bx bx-list-ul"></i>
-				<div data-i18n="Dashboard">Role</div>
-			</a>
-		</li>
-        <li class="menu-item {{ request()->is('admin/doctor') ? 'active' : ''}}">
-			<a href="{{route('admin.doctor.index')}}" class="menu-link">
-				<i class="menu-icon tf-icons bx bx-user"></i>
-				<div data-i18n="Dashboard">Doctor</div>
+				<div data-i18n="Appointment">Appointment</div>
 			</a>
 		</li>
 
