@@ -31,9 +31,10 @@ use App\Http\Controllers\Doctor\{
 |
 */
 
-// Public Routes
-Route::get('/', [HomeController::class, 'index'])->name('/');
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+// Website Routes
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+
 
 // Admin Routes
 Route::name('admin.')->prefix('admin')->group(function () {
